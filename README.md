@@ -44,10 +44,17 @@ Before any node, we have to set up the : shader settings, lighting, geometry and
 
 PERFECT! we are nearly done with shader settings! The last thing is in terms of shader preview, we can set up the mesh, click on the little circle near where says "Sphere" and select the mesh you want to be with the effect, THIS IS OPTIONAL, and not required for the shader to work.
 Ah! dont forget to uncheck Skybox on the preview, there is a bug on shader forge wich make the nodes not visible with skybox checked on preview.
-
-
+Finally click Settings button and check "Use scroll in the quickpicker" and "Show node browser panel"
 
 ![WOW!](https://i.imgur.com/JywpCUG.png)
 
+Our shader now is pretty boring, all black. So, we are going to start with the coloring.
+We will start with the MainColor. We will have a Main Color and an intensity of that color, so we are going to hold C and see a list of nodes appear where the mouse is. Scroll with the mouse to the greenish "Color" and then click it. You will se the color node appearing.
 
+![WOW!](https://i.gyazo.com/4a46ecc177af58ddaea51f72a422facb.gif)
 
+Click on the name (node_XXXX) and change it, because of this is the MainColor i will call it that way. Ive selected too a blue color in it, here is the Hexadecimal: 5581FF. 
+Ok next we are going to create a slider for the MainColorIntensity and Add both nodes to a Multiply node
+
+![WOW!](https://i.gyazo.com/10676cf9adeefb32152c050fb5fdfbfd.gif)
+![WOW!](https://i.gyazo.com/f00b451acc0a778080b9aec8150b9384.gif)
