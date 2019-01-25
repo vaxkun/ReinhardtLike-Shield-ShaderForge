@@ -17,7 +17,7 @@ ShaderForge for unity 2018.2, its open source now: https://github.com/jackisgame
 
 PostProcessingStack, its official from unity technologies: https://assetstore.unity.com/packages/essentials/post-processing-stack-83912
 ````
-OK! now we have only on thing to do after starting to make the shader. The mesh that will contain our shader, you will be able to download it from this project.
+OK! now we have only on thing to do before starting to make the shader. The mesh that will contain our shader, you will be able to download it from this project.
 
 Head up to unity menu and go on "Window--> Shader Forge" and this window will pop up: ![WOW!](https://i.imgur.com/kBIoIPg.png)
 Hit "New Shader" and then "Custom Lighting", then, save it wherever you want INSIDE the project and call it however you want, but if its something weird be sure to remember it.
@@ -64,7 +64,7 @@ Because of how colors are, as you can see in the bottom of the color node, color
 
 ![WOW!](https://i.gyazo.com/a36e776944d5089f1fe0893ed065427f.gif)
 
-If you connect it to "Emission" on the MainNode (The bigger node) you will be able to see the color on the mesh, but, thats not what we want. What we want is that color but in certain parts of the mesh, (in this case the borders of the mesh and a "hex" guide on the rest of the mesh). Before doing that guide we are going to do the "intersections", we are going to use the Depth Blend node to achieve this effect, and because we rock about making shaders, we are going to add another color. Exactly the same 3 nodes we made after but with other name, you can call it IntersectionsColor, DepthBlendColor... So, lets add this node holding D scroll waaay down to "Depth Blend"
+If you connect it to "Emission" on the MainNode (The bigger node) you will be able to see the color on the mesh, but, thats not what we want. What we want is that color but in certain parts of the mesh, (in this case the borders of the mesh and a "hex" guide on the rest of the mesh). Before doing that guide we are going to do the "intersections", we are going to use the Depth Blend node to achieve this effect, and because we rock about making shaders, we are going to add another color. Exactly the same 3 nodes we made before but with other name, you can call it IntersectionsColor, DepthBlendColor... So, lets add this node holding D scroll waaay down to "Depth Blend"
 
 ![WOW!](https://i.gyazo.com/30cc4ea5962e3fdd85b4062730abd409.gif)
 
@@ -98,7 +98,7 @@ We are going to add a Slider, call it Depth Distance and connect it to the Depth
 
 Now we made the "easy" things!! but dont go crazy, i will be here explaining all the rest and why are we adding the rest of nodes, i bet you will say something like: "wait, ive made this whole node tree?!?!?".
 
-We will start deleting the "Value" node we made after and adding the Texture that will be used as a guide for our shader. So hold T and add the "Texture2D" node, the green one. Then, add the image with the guide (in this case you can find it inside the project, its called Hex)
+We will start deleting the "Value" node we made before and adding the Texture that will be used as a guide for our shader. So hold T and add the "Texture2D" node, the green one. Then, add the image with the guide (in this case you can find it inside the project, its called Hex)
 
 ![WOW!](https://i.gyazo.com/36c43f9048465eff5693d19913eb5213.gif)
 ![WOW!](https://i.gyazo.com/ba587ba896d0a1918bd52f64c70b1ddc.gif)
@@ -142,4 +142,135 @@ To delete connections between nodes, put the mouse over the connection, hold ALT
 
 ![WOW!](https://i.gyazo.com/dc0ca0ff9e106a2f5f0184f8c01d8722.gif)
 ![WOW!](https://i.gyazo.com/e1fd1fe5ac59bf8911734e720368e462.gif)
+
+Maybe you dont see Sin preview now, its normal, a lil bug on shaderforge preview, but is working. To demonstrate it, connect Sin node to the "Clamp 0-1" node we made before and see the preview, nice huh?
+
+![WOW!](https://i.gyazo.com/4b7fa1d03c12f5c8f856a08f6d0495e1.gif)
+
+Okay, now we are going to combine the 3  guides on Hex texture and use the wave to blend between them and the opacity.
+First of all we want the waves to be smoother, lets get another Clamp0-1 node to clamp values of sin between 0 and 1and then add it to a "Step(A <= B)" node. So Hold C and scroll to take Clamp0-1 and hold S and scroll to "Setp(A <= B)" node, then hold V and scroll to "Value"
+What Step do is Output 1 if A input is less than or equal to B input, otherwise outputs 0, the final result is a sharper wave.
+
+![WOW!](https://i.gyazo.com/a10f2bd1cbc2adfb90b6fc143d8c02db.gif)
+![WOW!](https://i.gyazo.com/5d76844b48cde406c8e7b68768f73ff3.gif)
+
+Hold O and scroll to "One Minus" node, that will give us the opposite of we have. And with that we have our 2 wave guides done.
+
+![WOW!](https://i.gyazo.com/a08b5acd34b37d3c9ef588fdf0f17416.gif)
+
+Now lets combine this guides with the different guides on Hex. To be tidy lets start with R channel guide. We are going to Remap the channel then, Multiply the sharp wave guide with this remapping and then substract the B channel to the result. Step by step:
+Hold R and scroll to "Remap(Simple)" and modify "To:" values to 0 and 0.2, just to make it a bit darker because we are going to multiply so it dont go very saturated.
+
+![WOW!](https://i.gyazo.com/2336d5c75147159523b9a5382a6b6126.gif)
+
+Then hold M and scroll to Multiply node and put the sharp wave guide on A and Remap on B
+
+![WOW!](https://i.gyazo.com/303aa4809923b3acca19796dd5c5cfc1.gif)
+
+Because B channel is the mesh borders and we dont want this "grid" to be noticed in the borders, we are going to substract it from our latest result, Hold S and scroll to Substract, then connect last multiply node to A and "B channel" of Hex on B of Substract:
+
+![WOW!](https://i.gyazo.com/dbf00301308f62d2fb74bd816bf96fd2.gif)
+
+And, as you can see, the border guide has been deleted on the output, just what we wanted!
+
+Lest go with G channel guide. We are going to remap it, but with a special remap, a remap who support changes on its outputs in realtime.
+So, hold R and scroll to "Remap", then lets create 3 Value nodes, Hold V and scroll to "Value" 3 times, and type 0, 1 and -1 on them.(one trick for Value nodes is holding "1" number and only value will pop up)
+
+![WOW!](https://i.gyazo.com/411eb46e1f3e5f6bd0c872d2e7464c0a.gif)
+
+Then, connect G channel to Val, 0 value to iMin, 1 Value to iMax,-1 value to oMin. i and o are essentially i=input and o=output.
+We are leaving oMax to a value that will change in realtime thanks to the TIME CONTROL and the Sine value.
+
+![WOW!](https://i.gyazo.com/9fc8892b52bac57c2776cd0bd5faf1ff.gif)
+
+So, lets connect a Multiply node to our Time Controller, with a value of 5, connect it to a Sin, and remap it to avoid getting black output.
+Hold M and scroll to Multiply, and hold 1 and scroll to Value, then type 5 on that value and hold S and scroll to Sin.
+
+![WOW!](https://i.gyazo.com/8b2aaf165213dcaf4bd1786855e5d53a.gif)
+![WOW!](https://i.gyazo.com/a65f25d339c8a9e6155c13c522f5b1ab.gif)
+
+Hold R and scroll to "Remap(Simple)" and change "From" to -1,1 and "To" to 0.5,1 and connect it to remap oMax
+
+![WOW!](https://i.gyazo.com/4590878680bd146c4d3b3c43a83582ae.gif)
+
+Now you will be able to see on Remap node, what we are trying to achieve with this effect, blend between different hex to make it more dynamic.
+
+Before making the last channel lets combine these 2 and see a bit the result to be motivated :)
+First, we will clamp the remap, hold C and scroll to "Clamp0-1" and then Multiply the OneMinus wave guide to the clamp.
+Then, like on the other channel we are going to substract the B channel from this to avoid the borders and then combine them with an Add node. Hold S and scroll to substract, connect the multiply to A and the B channel to B.
+
+![WOW!](https://i.gyazo.com/6312930405cadce6b74b1f73c9d62746.gif)
+![WOW!](https://i.gyazo.com/624c1fe0bc1a8dc53ce7781570dfd2f7.gif)
+
+Now, hold A and scroll to "Add", connect last substract to A and first substract to B and then connect the Add to the Clamp0-1 we before connected to Opacity. And then enjoy the waving :D
+
+![WOW!](https://i.gyazo.com/ff562178f58b5b1f9d7122de1cc4a6d3.gif)
+![WOW!](https://i.gyazo.com/96e483f6d0bd5ca0c08af6beee8b69e4.gif)
+
+Pretty nice huh?? lets make a little break and see what weve done, scroll out and see the node tree:
+
+![WOW!](https://i.imgur.com/DSVXtw7.png)
+Seems pretty big, but hey, YOU MADE THAT!!! I will wate here for you to go to the bathroom :)
+
+Youre back? okay, we are pretty close to the final.
+Now, lets add the B channel guide to Add node to combine this 3 channels nicely.
+
+![WOW!](https://i.gyazo.com/8d43a10f35dd768007fca11eb73e37b4.gif)
+
+We are heading to the last issue of the shader, we dont have our "Intersections" because opacity does not include it!! DONT WORRY, our friend LERP is here another time to save our lifes. Lets hold L and scroll to Lerp, hold 1 and scroll to Value. Then, type a 1 into the value, and connect the value into the A of the Lerp. Connect the Add of our 3 channels on "B" of lerp, and finally, on "T" input of Lerp put the "Depth Blend" and conect this lerp to the Clamp0-1 connected on opacity.
+
+![WOW!](https://i.gyazo.com/1a263b6886e0ec02a8f148cdd4c9ff8e.gif)
+![WOW!](https://i.gyazo.com/f90bc0fab56dc79ded3d170a45446210.gif)
+
+The last thing is to clamp both Substracts because the substract its causing that our B channel is not adding. Why? well, we substracted 1 from 0 so now we have -1 and adding both substracts that make -2, so if we add 1 (our B channel) that doesnt make anything, so if we clamp it between 0 to 1, when we add 1 from our B channel it will add it perfectly
+
+![WOW!](https://i.gyazo.com/ffd91097c079d9667b6008925cebd237.gif)
+(this image and following will have something different in the node previews because i restarted the pc and shader forge bug fixed)
+
+Lets finishing leaving all neat and tidy. Go ahead to Shader properties, on the tab called Properties and tidy up that.
+![WOW!](https://i.gyazo.com/8dd22cdf10015538969711ff9916dd63.png)
+
+## FINISH LINE FOR SHADER 
+
+Congrats!!! You made it!! take a lil time to scroll out and see the node tree. And you were saying you werent going to be able to do this.
+![WOW!](https://i.imgur.com/HNOO3Lk.png)
+
+Lets close the ShaderForge window and head up to the material properties. Make sure that "Animated Materials" is select.
+![WOW!](https://i.gyazo.com/66f6fbe89de662622442e48925592cfe.gif)
+
+It seems like its something missing... LETS ADD SOME POSTPROCESSING!!
+Because we are very smart and we added PostProcessingStack before, we only have to do 2 things. Add the script to the camera and modify the post processing properties.
+
+Head up to the camera object and click on "Add Component" and add "Post Processing Behaviour" script.
+![WOW!](https://i.gyazo.com/543e218779bc98c2c48bf05f1b4a2178.gif)
+
+Then we are going to create a new Post Processing profile and adding it: Antialiasing to smooth borders, Bloom for the emissions, and Color Grading to make all colors nicer. (not going to dive into all postprocessing on this tutorial)
+![WOW!](https://i.gyazo.com/65045f4e1a733dc244ffd1aa5dcd3e7b.gif)
+![WOW!](https://i.gyazo.com/5006335950462843b2342bc7b139d3a3.png)
+
+Then, add this "Bloom" post processing profile to the script on the camera.
+
+![WOW!](https://i.gyazo.com/65045f4e1a733dc244ffd1aa5dcd3e7b.gif)
+
+AND THIS IS THE FINAL!!!
+
+Looks nice tho.
+I will leave here some nice colors of the shader, and interactions with meshes
+
+![WOW!](https://i.gyazo.com/325ba715341e7b5960d43ca1e3d47075.png)
+![WOW!](https://i.gyazo.com/174fd7c3a4373eacf45aa78eb3ba2a4e.png)
+![WOW!](https://i.gyazo.com/b2003cdb441d2ba736d020ee80ad2b99.png)
+![WOW!](https://i.gyazo.com/929b4514ba8229e102f6d06c96850a2f.png)
+![WOW!](https://i.gyazo.com/587c0bdf93109591b0de009a50f00771.png)
+
+![WOW!](https://i.gyazo.com/7b4fd71fc6293752864868d99dad5ef9.gif)
+
+Of course feel free to mess out with intensity, depth, colors and maps. Enjoy it!!
+
+Donations and credit allowed :P
+
+Have a good dev day!!
+
+
+
 
